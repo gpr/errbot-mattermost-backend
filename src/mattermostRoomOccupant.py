@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import logging
 from errbot.backends.base import RoomOccupant
 from .mattermostPerson import MattermostPerson

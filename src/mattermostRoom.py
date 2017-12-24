@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import logging
 from errbot.backends.base import Room, RoomDoesNotExistError, RoomError, UserDoesNotExistError
 from mattermostdriver.exceptions import NotEnoughPermissions, ResourceNotFound, InvalidOrMissingParameters
