@@ -186,6 +186,26 @@ class MattermostBackend(ErrBot):
 		if file_ids:
 			msg.extras['attachments'] = file_ids
 
+		parentid = post.get('parent_id')
+		if parentid:
+			log.debug('Threaded message')
+			parent_post = self.driver.posts.get_post(parentid)
+
+			parent = Message(
+                parent_post.get('message'),
+				extras={
+					'mattermost_event': message,
+					'url': '{scheme:s}://{domain:s}:{port:s}/{teamname:s}/pl/{postid:s}'.format(
+						scheme=self.driver.options['scheme'],
+						domain=self.driver.options['url'],
+						port=str(self.driver.options['port']),
+						teamname=self.team,
+						postid=parentid
+					)
+				}
+			)
+			msg.parent = parent
+
 		# TODO: Slack handles bots here, but I am not sure if bot users is a concept in mattermost
 		if channel_type == 'D':
 			msg.frm = MattermostPerson(self.driver, userid=userid, channelid=channelid, teamid=self.teamid)
