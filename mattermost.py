@@ -522,6 +522,12 @@ class MattermostBackend(ErrBot):
         else:
             response.to = message.frm.room if isinstance(
                 message.frm, RoomOccupant) else message.frm
+
+        if threaded:
+            response.extras['root_id'] = message.extras.get('root_id')
+            self.driver.posts.get_post(message.extras.get('root_id'))
+            response.parent = message
+
         return response
 
     def get_public_channels(self):
