@@ -175,9 +175,16 @@ class MattermostBackend(ErrBot):
             mentions = self.mentions_build_identifier(
                 json.loads(data['mentions']))
 
+        # Thread root post id
+        rootid = post.get('root_id')
+        if rootid is '':
+            rootid = post_id
+
         msg = Message(
             text,
             extras={
+                'id': post_id,
+                'root_id': rootid,
                 'mattermost_event': message,
                 'url': '{scheme:s}://{domain:s}:{port:s}/{teamname:s}/pl/{postid:s}'.format(
                     scheme=self.driver.options['scheme'],
@@ -199,6 +206,8 @@ class MattermostBackend(ErrBot):
             parent = Message(
                 parent_post.get('message'),
                 extras={
+                    'id': parentid,
+                    'root_id': rootid,
                     'mattermost_event': message,
                     'url': '{scheme:s}://{domain:s}:{port:s}/{teamname:s}/pl/{postid:s}'.format(
                         scheme=self.driver.options['scheme'],
@@ -388,10 +397,15 @@ class MattermostBackend(ErrBot):
                         MATTERMOST_MESSAGE_LIMIT)
             parts = self.prepare_message_body(body, limit)
 
+            rootid = None
+            if message.parent is not None:
+                rootid = message.parent.extras.get('root_id')
+
             for part in parts:
                 self.driver.posts.create_post(options={
                     'channel_id': to_channel_id,
                     'message': part,
+                    'root_id': rootid,
                 })
         except (InvalidOrMissingParameters, NotEnoughPermissions):
             log.exception(
